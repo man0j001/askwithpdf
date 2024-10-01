@@ -1,6 +1,6 @@
 'use client'
 
-import { s3upload } from '@/lib/s3'
+import { streamS3upload } from '@/lib/s3'
 import React from 'react'
 import {useDropzone} from 'react-dropzone'
 import axios from "axios"
@@ -10,14 +10,13 @@ const FileUpload = () => {
 
   const [loading, setLoading] = React.useState(false) 
   const {mutate, isPending} = useMutation({
-    mutationFn: async({file_key, file_name}:{
-      file_key : string,
-      file_name : string
+    mutationFn: async({formData }:{
+      formData : FormData,
     }) => {
-      const response = await axios.post('/api/create-chat',{
-        file_key,
-        file_name
-      });
+      const response = await axios.post('/api/create-chat',
+        formData,
+        { headers: { 'Content-Type': 'multipart/form-data' },}
+      );
       return response.data
     },
   })
@@ -34,14 +33,16 @@ const FileUpload = () => {
 
             try {
                 setLoading(true)
-                const data = await s3upload(file)
-                if(!data?.file_key || !data.file_name){
-                  toast.error("Something Went Wrong")
-                  return 
-                }
-                mutate(data,{
-                  onSuccess:(data)=>{
-                    console.log(data)
+                const formData = new FormData();
+                formData.append("file", file);
+                // const data = await streamS3upload(file)
+                // if(!data?.file_path || !data.file_name){
+                //   toast.error("Something Went Wrong")
+                //   return 
+                // }
+                mutate({formData},{
+                  onSuccess:(formData)=>{
+                    console.log(formData)
                   },
                   onError:(err)=>{
                     console.log(err)
