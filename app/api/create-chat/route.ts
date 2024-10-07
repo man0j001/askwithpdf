@@ -1,32 +1,40 @@
 import { loadS3IntoPinecone } from '@/lib/pinecone';
 import { NextResponse } from 'next/server';
-import { streamS3upload } from '@/lib/s3';
+import { getS3Url, streamS3upload } from '@/lib/s3Services';
+import { db } from '@/lib/db';
+import { chatTable, messages } from '@/lib/db/schema';
+import { auth } from '@clerk/nextjs/server';
+
 
 
 
 export async function POST(req: Request, res: Response) {
+    const { userId }: { userId: string | null } = auth()
+
+    if (!userId) return NextResponse.json({error:" Unauthorised "}, { status: 401 })
 
     try {
         const body = await req.formData();
         const file = body.get('file') as File;
         if (!req.body) {
             return NextResponse.json(
-                { message: "File is Required", status: 400 }
+                { message: "File is Required", status: 401 }
             )
         }
-        console.log(file)
-        console.log("uploading....")
-        const data = streamS3upload(file)
+        const data = await streamS3upload(file)
         console.log("Uploading Success")
-        // const body = await req.json()
-        // const { file_key, file_name } = body;
-        // console.log("File key", file_key)
-        // // const pages = await loadS3IntoPinecone(file_key)
-        // // console.log(pages)
+        const { file_path, file_name } = data
+        await loadS3IntoPinecone(file_path)
 
-        return NextResponse.json(
-            { message: "success", status: 200 }
-        )
+        const chat_id = await db.insert(chatTable).values({
+            fileKey: file_path,
+            pdfName: file_name,
+            pdfUrl:getS3Url(file_path),
+            userID:userId
+        } 
+        ).returning({insertedId:chatTable.id})
+
+        return NextResponse.json({chat_id:chat_id[0].insertedId},{status:200})
 
     } catch (error) {
         console.error(error);
