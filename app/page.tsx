@@ -1,4 +1,4 @@
-import FileUpload from "@/components/ui/FileUpload";
+import FileUpload from "@/components/FileUpload";
 import { UserButton } from "@clerk/nextjs"
 
 export default async function Home() {

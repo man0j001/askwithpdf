@@ -14,6 +14,7 @@ const config: Config = {
 			inter: ['Inter', 'sans-serif'],
 		  },
   		colors: {
+			'main':'#dbeafe',
 			'primary-orange': '#FF5722',
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',

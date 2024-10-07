@@ -31,9 +31,9 @@ export default function RootLayout({
       <Provider>
      <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <div className="main">
+        {/* <div className="main">
           <div className="gradient"/>
-        </div>
+        </div> */}
         <main className="app">
           {children}
         </main>

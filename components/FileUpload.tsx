@@ -64,7 +64,7 @@ const FileUpload = () => {
   return (
     <>
     <Toaster />
-    <div {...getRootProps()} className='bg-white p-1.5 h-12 flex rounded-xl border-dashed border-2 border-blue-200'>
+    <div {...getRootProps()} className='bg-white p-1.5 h-12 flex rounded-xl border-dashed border-2 border-blue-200 cursor-pointer'>
     <input {...getInputProps()} />
     <label
         className="flex"
