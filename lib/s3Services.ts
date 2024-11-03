@@ -36,12 +36,6 @@ export const streamS3upload = async (file: File) => {
       },
     });
 
-    // // Monitor upload progress
-    // parallelUploads3.on("httpUploadProgress", (progress) => {
-    //   console.log(progress);
-    // });
-
-    // Wait for upload to complete
     const data = await parallelUploads3.done();
     console.log('Successfully uploaded to S3!', filePath);
 

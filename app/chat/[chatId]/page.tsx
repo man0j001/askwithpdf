@@ -1,11 +1,11 @@
 import SidebarMenu from '@/components/SidebarMenu'
-import PDFViewer from '@/components/ui/PdfViewer'
 import { db } from '@/lib/db'
 import { chatTable } from '@/lib/db/schema'
 import { auth } from '@clerk/nextjs/server'
 import { eq } from 'drizzle-orm'
 import { redirect } from 'next/navigation'
 import React from 'react'
+import { ResizeChatPdf } from '@/components/ResizeChatPdf'
 
 type Props = {
     params:{
@@ -25,6 +25,7 @@ export default async function ChatPage({params: {chatId}}: Props) {
         return redirect("/");
       }
     const currentChat = _chats.find((chat) => chat.id === parseInt(chatId));
+    console.log("Type",typeof(currentChat))
 
   return (
     <div className="flex max-h-screen">
@@ -34,14 +35,7 @@ export default async function ChatPage({params: {chatId}}: Props) {
           {/* <ChatSideBar chats={_chats} chatId={parseInt(chatId)} isPro={isPro} /> */}
           <SidebarMenu chats={_chats} chatId={parseInt(chatId)} />
         </div>
-        {/* pdf viewer */}
-        <div className="max-h-screen p-4 oveflow-scroll flex-[5]">
-          <PDFViewer pdf_url={currentChat?.pdfUrl || ""} />
-        </div>
-        {/* chat component */}
-        <div className="flex-[4] border-l-4 border-l-slate-200">
-          {/* <ChatComponent chatId={parseInt(chatId)} /> */}
-        </div>
+        <ResizeChatPdf pdf_url={currentChat?.pdfUrl || ""} chatID = {parseInt(chatId)} />
       </div>
     </div>
   )

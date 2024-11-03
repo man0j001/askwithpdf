@@ -10,58 +10,24 @@ import { convertToAscii } from "./utils";
 
 config({ path: '.env' });
 
-// async function createIndex(client: Pinecone, indexName: string): Promise<void> {
-//   try {
-//     const index = await client.createIndex({
-//       name: indexName,
-//       dimension: 1536,
-//       metric: "cosine",
-//       spec: {
-//         serverless: {
-//           cloud: "aws",
-//           region: "us-east-1",
-//         },
-//       },
-//     });
-//     console.log(
-//       `Waiting for ${process.env.INDEX_INT_TIMEOUT} seconds for index initialization to complete...`
-//     );
-//     return index
-//   } catch (error) {
-//     console.log("error", error);
-//     throw new Error("Index create Failed");
-//   }
-// }
-
+// Pinecone Initialization 
 export async function initializationPincone(){
   try {
     const pc = new Pinecone({ apiKey: process.env.PINEONE_API_KEY as string });
-    const indexName = "ask-to-pdf" ;
-    // const index = await pc.createIndex({
-    //   name: indexName,
-    //   dimension: 1536,
-    //   metric: "cosine",
-    //   spec: {
-    //     serverless: {
-    //       cloud: "aws",
-    //       region: "us-east-1",
-    //     },
-    //   },
-    // });
-    const index  = pc.index(indexName)
-    return index
+    const indexName = "askwithpdf" ;
+    const index  = await pc.createIndex({
+      name: indexName,
+      dimension: 768, // Replace with your model dimensions
+      metric: 'cosine', // Replace with your model metric
+      spec: { 
+        serverless: { 
+          cloud: 'aws', 
+          region: 'us-east-1' 
+        }
+      } 
+    });
+    return pc.index(indexName)
 
-    // const existingIndexes = await pc.listIndexes();
-    // const indexesArray = existingIndexes?.indexes || [];
-    // const indexExists = indexesArray.some(
-    //   (index: any) => index.name === indexName || index.name === "asktopdf"
-    // );
-    // if (!indexExists) {
-    //   console.log(`Index '${indexName}' does not exist. Creating it...`);
-    //   return createIndex(pc, indexName);
-    // } else {
-    //   console.log("Index is already created");
-    // }
   } catch (error) {
     console.log("error", error);
     throw new Error("Faile to Initialization of Pinecone");
@@ -76,24 +42,26 @@ type PDFPage = {
 };
 
 export async function loadS3IntoPinecone(fileKey: string) {
-  // 1. obtain the pdf -> downlaod and read from pdf
+// downloading PDF from S3 bucket
   console.log("downloading s3 into file system");
   const file_name = await downloadFromS3(fileKey);
   if (!file_name) {
     throw new Error("could not download from s3");
   }
   console.log("loading pdf into memory" + file_name);
+// Parsing the PDF
   const loader = new PDFLoader(file_name);
   const pages = (await loader.load()) as PDFPage[];
-
+//Spliting the Parsed Text
   const documents = await Promise.all(pages.map(splitPages));
   console.log("Spliting Complete")
+//Convert the splitted text into vector
   const vectors = await Promise.all(documents.flat().map(embedDocument));
-  // const pineconeVector = initializationPincone()
 
-  console.log("inserting vectors in pinecone")
+// Store the vector in Pincone by intiaziations then create index 
   const pc = new Pinecone({ apiKey: process.env.PINEONE_API_KEY as string });
-  const indexName = "awswithpdf" ;
+  const indexName = "askwithpdf" ;
+  // const index = await initializationPincone()
   const index  = pc.index(indexName)
   await index.namespace(convertToAscii(fileKey)).upsert(vectors)
 
@@ -104,7 +72,7 @@ export const truncateStringByBytes = (str: string, bytes: number) => {
   const enc = new TextEncoder();
   return new TextDecoder("utf-8").decode(enc.encode(str).slice(0, bytes));
 };
-
+// spliting the pdf into document using Text Splitter
 async function splitPages(page:PDFPage){
   let { pageContent, metadata } = page;
   pageContent = pageContent.replace(/\n/g, "");
