@@ -3,7 +3,7 @@ import Together from "together-ai";
 import { config } from 'dotenv';
 import { streamText } from 'ai';
 import { createGroq } from '@ai-sdk/groq';
-import { chatTable } from '@/lib/db/schema';
+import { chatTable, messages as _messages  } from '@/lib/db/schema';
 import { db } from '@/lib/db';
 import { eq } from 'drizzle-orm';
 import { getContext } from '@/lib/context';
@@ -37,8 +37,8 @@ export async function POST(req: Request, res: Response) {
 
         const fileKey = _chats[0].fileKey
 
-        const context = getContext(lastmessage.content,fileKey)
-
+        const context = await getContext(lastmessage.content,fileKey)
+        
         const prompt = {
             role: "system",
             content: `AI assistant is a brand new, powerful, human-like artificial intelligence.
@@ -56,17 +56,30 @@ export async function POST(req: Request, res: Response) {
             AI assistant will not invent anything that is not drawn directly from the context.
             `,
           };
-      
-
+        
         const model = groq('llama3-8b-8192');
 
+        // save user message into db
+        await db.insert(_messages).values({
+            chatID,
+            content: lastmessage.content,
+            role: "user",
+          });
+        
         const result = await streamText({
             model,
             messages:[ prompt,
                 ...messages.filter((message: Message) => message.role === "user"),],
+            onFinish: async ({ text }) => {
+                // Insert the AI's response into your database
+                await db.insert(_messages).values({
+                    chatID,
+                    content: text,
+                    role: "system",
+                });
+                },
           });
-        
-        
+          
         return result.toDataStreamResponse()
         
     }
@@ -77,6 +90,4 @@ export async function POST(req: Request, res: Response) {
             { status: 500 }
         );
     }
-
-
 }

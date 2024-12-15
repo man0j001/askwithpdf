@@ -17,13 +17,12 @@ export async function getMatchEmbedding(embeddings: number[], fileKey: string) {
         const index = pc.index("askwithpdf")
         //get right namespace using filekey for searching emeddings
         const namespace = index.namespace(convertToAscii(fileKey))
-        console.log("NameSpace",namespace);
         
         //searching top 5 matches from emebeddings
         const queryResult = await namespace.query({
             topK: 5,
             vector: embeddings,
-            includeMetadata: true
+            includeMetadata: true,
         })
         return queryResult.matches || []
     }
@@ -42,8 +41,7 @@ export async function getContext(query:string,fileKey:string) {
     const qualifyingMatches = matches.filter((match)=>
         match.score && match.score > 0.7
     )
-    console.log(matches)
-    type Metadata = {
+    type Metadata = { 
         text: string;
         pageNumber: number;
       };

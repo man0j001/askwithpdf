@@ -14,7 +14,7 @@ type Props = {
 
 function SidebarMenu({chats,chatId}:Props) {
   return (
-    <aside className='bg-main h-screen px-4 w-full max-h-screen soff p-4'>
+    <aside className='bg-main h-screen px-4 w-72 max-h-screen soff p-4'>
       <div>
         <h2>Chat with PDF </h2>
         <FileUpload/>

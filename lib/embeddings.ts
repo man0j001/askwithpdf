@@ -17,7 +17,7 @@ const together = new Together({
 export async function getEmbeddings(text: string) {
   try {
     const response = await together.embeddings.create({
-      model: 'togethercomputer/m2-bert-80M-2k-retrieval',
+      model: 'WhereIsAI/UAE-Large-V1',
       input: text.replace("\n", " "),
     });
     // const response = await groqClient.embeddings.create({

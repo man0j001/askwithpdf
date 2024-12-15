@@ -58,7 +58,7 @@ export async function loadS3IntoPinecone(fileKey: string) {
 //Convert the splitted text into vector
   const vectors = await Promise.all(documents.flat().map(embedDocument));
 
-// Store the vector in Pincone by intiaziations then create index 
+// Store the vector in Pincone by intiaziation`s then create index 
   const pc = new Pinecone({ apiKey: process.env.PINEONE_API_KEY as string });
   const indexName = "askwithpdf" ;
   // const index = await initializationPincone()
@@ -77,8 +77,8 @@ async function splitPages(page:PDFPage){
   let { pageContent, metadata } = page;
   pageContent = pageContent.replace(/\n/g, "");
   const textSplitter = new RecursiveCharacterTextSplitter({
-    chunkSize: 1000,
-    chunkOverlap: 200,
+    chunkSize: 500,
+    chunkOverlap: 150,
   });
   const docs = await textSplitter.splitDocuments([
     new Document({
