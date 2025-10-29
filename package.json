@@ -9,11 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ai-sdk/google": "^2.0.25",
     "@ai-sdk/groq": "^0.0.1",
     "@ai-sdk/openai": "^0.0.66",
+    "@ai-sdk/react": "^2.0.82",
     "@aws-sdk/client-s3": "^3.658.1",
     "@aws-sdk/lib-storage": "^3.658.1",
     "@clerk/nextjs": "^5.6.0",
+    "@google/genai": "^1.27.0",
     "@langchain/community": "^0.3.4",
     "@langchain/core": "^0.2.34",
     "@langchain/textsplitters": "^0.1.0",
@@ -21,7 +24,7 @@
     "@pinecone-database/pinecone": "^3.0.3",
     "@radix-ui/react-slot": "^1.1.0",
     "@tanstack/react-query": "^5.56.2",
-    "ai": "^3.4.9",
+    "ai": "^5.0.82",
     "axios": "^1.7.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
@@ -39,9 +42,11 @@
     "react-dropzone": "^14.2.3",
     "react-hot-toast": "^2.4.1",
     "react-resizable-panels": "^2.1.4",
+    "stripe": "^17.5.0",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
-    "together-ai": "^0.6.0-alpha.4"
+    "together-ai": "^0.6.0-alpha.4",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@types/md5": "^2.3.5",

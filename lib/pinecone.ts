@@ -63,6 +63,9 @@ export async function loadS3IntoPinecone(fileKey: string) {
   const indexName = "askwithpdf" ;
   // const index = await initializationPincone()
   const index  = pc.index(indexName)
+  //Creates file-specific namespace using ASCII-converted fileKey
+  //Upserts all vectors to the namespace
+
   await index.namespace(convertToAscii(fileKey)).upsert(vectors)
 
   return documents[0]

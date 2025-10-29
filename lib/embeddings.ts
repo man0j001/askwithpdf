@@ -1,34 +1,40 @@
-
-import Together from "together-ai";
 import { config } from 'dotenv';
-// import Groq from "groq-sdk";
+import { GoogleGenAI } from "@google/genai";
 
-
-
-const together = new Together({
-  apiKey: process.env.TOGETHER_AI,
+// Initialize Google Gemini AI client
+// Get your API key from https://ai.google.dev/
+const client = new GoogleGenAI({
+  apiKey: process.env.GOOGLE_EMBEDDING_API_KEY
 });
 
-// const groqClient = new Groq({
-//   apiKey: process.env.GROQ, // Use your Groq API key
-// });
-
-// meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo
 export async function getEmbeddings(text: string) {
   try {
-    const response = await together.embeddings.create({
-      model: 'WhereIsAI/UAE-Large-V1',
-      input: text.replace("\n", " "),
-    });
-    // const response = await groqClient.embeddings.create({
-    //   model: 'llama3-8b-8192', 
-    //   input: text.replace("\n", " "),
-    // });
+    if (!process.env.GOOGLE_EMBEDDING_API_KEY) {
+      throw new Error("GOOGLE_EMBEDDING_API_KEY is not set in environment variables");
+    }
 
-    const result = response;
-    return result.data[0].embedding as number[];
+    // Clean the input text
+    const cleanedText = text.replace(/\n/g, " ").trim();
+
+    // Generate embeddings using gemini-embedding-001 model
+    // Output dimension set to 1024 to match Pinecone index
+    const result = await client.models.embedContent({
+      model: 'gemini-embedding-001',
+      contents: cleanedText,
+      config: {
+        outputDimensionality: 1024
+      }
+    });
+
+    // Check if embeddings exist and return the values
+    if (!result.embeddings || result.embeddings.length === 0) {
+      throw new Error("No embeddings returned from the API");
+    }
+
+    // Return the embedding values
+    return result.embeddings[0].values as number[];
   } catch (error) {
-    console.log("error calling openai embeddings api", error);
+    console.log("Error calling Google Gemini embeddings API:", error);
     throw error;
   }
 }

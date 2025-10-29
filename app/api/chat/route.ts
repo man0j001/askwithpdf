@@ -1,23 +1,19 @@
 import { NextResponse } from 'next/server';
-import Together from "together-ai";
 import { config } from 'dotenv';
 import { streamText } from 'ai';
-import { createGroq } from '@ai-sdk/groq';
 import { chatTable, messages as _messages  } from '@/lib/db/schema';
 import { db } from '@/lib/db';
 import { eq } from 'drizzle-orm';
 import { getContext } from '@/lib/context';
-import { Message } from 'ai';
+import { CoreMessage } from 'ai';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
 
 config({ path: '.env' });
 
-const together = new Together({
-  apiKey: process.env.TOGETHER_AI,
+// Initialize Google provider with API key
+const google = createGoogleGenerativeAI({
+  apiKey: process.env.GOOGLE_EMBEDDING_API_KEY,
 });
-
-const groq = createGroq({
-    apiKey:process.env.GROQ
-})
 
 
 
@@ -57,7 +53,8 @@ export async function POST(req: Request, res: Response) {
             `,
           };
         
-        const model = groq('llama3-8b-8192');
+        // Using Google's Gemini 2.0 Flash model for chat
+        const model = google('gemini-2.0-flash-exp');
 
         // save user message into db
         await db.insert(_messages).values({
@@ -67,9 +64,9 @@ export async function POST(req: Request, res: Response) {
           });
         
         const result = await streamText({
-            model,
+            model: model,
             messages:[ prompt,
-                ...messages.filter((message: Message) => message.role === "user"),],
+                ...messages.filter((message: CoreMessage) => message.role === "user"),],
             onFinish: async ({ text }) => {
                 // Insert the AI's response into your database
                 await db.insert(_messages).values({
@@ -80,7 +77,7 @@ export async function POST(req: Request, res: Response) {
                 },
           });
           
-        return result.toDataStreamResponse()
+        return result.toTextStreamResponse()
         
     }
     catch(error){

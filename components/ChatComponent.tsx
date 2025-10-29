@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import {Message, useChat} from 'ai/react'
+import { CoreMessage } from 'ai'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
 import { MessageComponent } from './MessageComponent'
@@ -10,19 +10,88 @@ import axios from 'axios'
 type Props = {chatID:number}
 
 function ChatComponent({chatID}: Props) {
+    const [input, setInput] = React.useState('')
+    const [messages, setMessages] = React.useState<CoreMessage[]>([])
+    const [isLoading, setIsLoading] = React.useState(false)
+
     const {data} = useQuery({
       queryKey: ["chat",chatID],
       queryFn: async () =>{
-        const response = await axios.post<Message[]>('/api/get-messages',{chatID})
+        const response = await axios.post<CoreMessage[]>('/api/get-messages',{chatID})
         return response.data
       }
     })
 
-    const {input, handleInputChange, handleSubmit, messages} = useChat({
-      api: "/api/chat",
-      body:{chatID},
-      initialMessages: data || []
-    })
+    React.useEffect(() => {
+      if (data) {
+        setMessages(data)
+      }
+    }, [data])
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setInput(e.target.value);
+    }
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault()
+      if (!input.trim() || isLoading) return
+
+      const userMessage: CoreMessage = {
+        role: 'user',
+        content: input,
+      }
+
+      setMessages(prev => [...prev, userMessage])
+      setInput('')
+      setIsLoading(true)
+
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            messages: [userMessage],
+            chatID
+          }),
+        })
+
+        if (!response.ok) throw new Error('Failed to get response')
+
+        const reader = response.body?.getReader()
+        const decoder = new TextDecoder()
+        let assistantMessage = ''
+
+        if (reader) {
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+            
+            const chunk = decoder.decode(value)
+            assistantMessage += chunk
+            
+            setMessages(prev => {
+              const newMessages = [...prev]
+              const lastMessage = newMessages[newMessages.length - 1]
+              if (lastMessage && lastMessage.role === 'assistant') {
+                lastMessage.content = assistantMessage
+              } else {
+                newMessages.push({
+                  role: 'assistant',
+                  content: assistantMessage,
+                })
+              }
+              return newMessages
+            })
+          }
+        }
+      } catch (error) {
+        console.error('Error:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
 
     React.useEffect(() => {
       const messageContainer = document.getElementById("message-container");

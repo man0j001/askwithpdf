@@ -21,9 +21,11 @@ export async function POST(req: Request, res: Response) {
                 { message: "File is Required", status: 401 }
             )
         }
+        //upload the pdf data to AWS S3 
         const data = await streamS3upload(file)
         console.log("Uploading Success")
         const { file_path, file_name } = data
+        //convert send uploaded pdf to Pinecone DB
         await loadS3IntoPinecone(file_path)
 
         const chat_id = await db.insert(chatTable).values({
