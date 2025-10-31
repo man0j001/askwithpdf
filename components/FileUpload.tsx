@@ -64,10 +64,10 @@ const FileUpload = () => {
   return (
     <>
     <Toaster />
-    <div {...getRootProps()} className='bg-white p-1.5 h-12 flex rounded-xl border-dashed border-2 border-blue-200 cursor-pointer'>
+    <div {...getRootProps()} className='bg-white p-1.5 h-12 flex items-center justify-center rounded-xl border-dashed border-2 border-blue-200 cursor-pointer text-center'>
     <input {...getInputProps()} />
     <label
-        className="flex"
+        className="flex items-center justify-center"
       >
         <span className="bg-slate-300 p-1 mr-2 rounded-md">
         <img className="w-5 text-gray-800" src='/assets/icons/upload.svg'/>

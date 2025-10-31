@@ -1,23 +1,14 @@
 import { NextResponse } from 'next/server';
 import { config } from 'dotenv';
-import { streamText } from 'ai';
 import { chatTable, messages as _messages  } from '@/lib/db/schema';
 import { db } from '@/lib/db';
 import { eq } from 'drizzle-orm';
 import { getContext } from '@/lib/context';
-import { CoreMessage } from 'ai';
-import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { GoogleGenAI } from '@google/genai';
 
 config({ path: '.env' });
 
-// Initialize Google provider with API key
-const google = createGoogleGenerativeAI({
-  apiKey: process.env.GOOGLE_EMBEDDING_API_KEY,
-});
-
-
-
-export async function POST(req: Request, res: Response) {
+export async function POST(req: Request) {
     try {
         const { messages,chatID} = await req.json();
         if (!messages.length) {
@@ -33,51 +24,73 @@ export async function POST(req: Request, res: Response) {
 
         const fileKey = _chats[0].fileKey
 
-        const context = await getContext(lastmessage.content,fileKey)
-        
-        const prompt = {
-            role: "system",
-            content: `AI assistant is a brand new, powerful, human-like artificial intelligence.
-            The traits of AI include expert knowledge, helpfulness, cleverness, and articulateness.
-            AI is a well-behaved and well-mannered individual.
-            AI is always friendly, kind, and inspiring, and he is eager to provide vivid and thoughtful responses to the user.
-            AI has the sum of all knowledge in their brain, and is able to accurately answer nearly any question about any topic in conversation.
-            AI assistant is a big fan of Pinecone and Vercel.
-            START CONTEXT BLOCK
-            ${context}
-            END OF CONTEXT BLOCK
-            AI assistant will take into account any CONTEXT BLOCK that is provided in a conversation.
-            If the context does not provide the answer to question, the AI assistant will say, "I'm sorry, but I don't know the answer to that question".
-            AI assistant will not apologize for previous responses, but instead will indicated new information was gained.
-            AI assistant will not invent anything that is not drawn directly from the context.
-            `,
-          };
-        
-        // Using Google's Gemini 2.0 Flash model for chat
-        const model = google('gemini-2.0-flash-exp');
-
         // save user message into db
         await db.insert(_messages).values({
             chatID,
             content: lastmessage.content,
             role: "user",
           });
-        
-        const result = await streamText({
-            model: model,
-            messages:[ prompt,
-                ...messages.filter((message: CoreMessage) => message.role === "user"),],
-            onFinish: async ({ text }) => {
-                // Insert the AI's response into your database
-                await db.insert(_messages).values({
-                    chatID,
-                    content: text,
-                    role: "system",
-                });
+
+        const apiKey = process.env.GOOGLE_EMBEDDING_API_KEY;
+        if (!apiKey) {
+            return NextResponse.json(
+                { error: "Missing Google Generative AI API key" },
+                { status: 500 },
+            );
+        }
+
+        const generativeAI = new GoogleGenAI({ apiKey });
+
+        const { contextText, sources } = await getContext(lastmessage.content, fileKey);
+
+        const instruction = `You are a helpful AI assistant that strictly answers questions using the provided PDF context.
+If the context does not provide the answer, respond with exactly: "I'm sorry, but I don't know the answer to that question."
+When sharing facts derived from the context, mention the relevant page number in parentheses (e.g., (page 3)).`;
+
+        const contextBlock = contextText || 'No relevant context found.';
+        const userPrompt = `${instruction}
+
+Context:
+${contextBlock}
+
+Question:
+${lastmessage.content}`;
+
+        const generation = await generativeAI.models.generateContent({
+            model: 'gemini-2.0-flash-exp',
+            contents: [
+                {
+                    role: 'user',
+                    parts: [{ text: userPrompt }],
                 },
-          });
-          
-        return result.toTextStreamResponse()
+            ],
+        });
+
+        const answer = generation.text?.trim() ?? "I'm sorry, but I don't know the answer to that question.";
+
+        await db.insert(_messages).values({
+            chatID,
+            content: answer,
+            role: "system",
+        });
+
+        const citations = Array.from(
+            new Map(
+                sources.map((source) => [
+                    source.pageNumber,
+                    {
+                        pageNumber: source.pageNumber,
+                        sourceId: source.id,
+                        snippet: source.text.slice(0, 200),
+                    },
+                ]),
+            ).values(),
+        );
+
+        return NextResponse.json({
+            answer,
+            citations,
+        });
         
     }
     catch(error){

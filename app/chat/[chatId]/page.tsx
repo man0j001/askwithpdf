@@ -28,8 +28,8 @@ export default async function ChatPage({params: {chatId}}: Props) {
     console.log("Type",typeof(currentChat))
 
   return (
-    <div className="flex max-h-screen">
-      <div className="flex w-full max-h-screen ">
+    <div className="flex h-screen">
+      <div className="flex w-full h-screen ">
         {/* chat sidebar */}
         <div className="flex-[1] max-w-xs">
           {/* <ChatSideBar chats={_chats} chatId={parseInt(chatId)} isPro={isPro} /> */}
