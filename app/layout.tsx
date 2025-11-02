@@ -37,7 +37,7 @@ export default function RootLayout({
         <main className="app">
           {children}
         </main>
-        <Toaster/>
+        <Toaster position="top-center"/>
       </body>
     </html>
     </Provider>
