@@ -2,19 +2,19 @@
 
 import React from 'react'
 import {useDropzone} from 'react-dropzone'
-import axios from "axios"
+import axios, { AxiosError } from "axios"
 import { useMutation } from '@tanstack/react-query'
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { useAuth } from '@clerk/nextjs'
 
 
+
 const FileUpload = () => {
 
-  const [loading, setLoading] = React.useState(false) 
   const router = useRouter();
   const { isSignedIn } = useAuth();
-  const {mutate, isPending} = useMutation({
+  const {mutate} = useMutation({
     mutationFn: async({formData }:{
       formData : FormData,
     }) => {
@@ -26,7 +26,7 @@ const FileUpload = () => {
     },
   })
 
-    const {getRootProps, getInputProps, isDragActive} = useDropzone({
+    const {getRootProps, getInputProps} = useDropzone({
         accept:{'application/pdf':['.pdf']},
         maxFiles:1,
         onDrop: async (acceptedFiles)=>{
@@ -41,7 +41,6 @@ const FileUpload = () => {
                 return 
             }
             try {
-                setLoading(true)
                 const formData = new FormData();
                 formData.append("file", file);
                 const toastId = toast.loading("Uploading...");
@@ -54,7 +53,7 @@ const FileUpload = () => {
                   },
                   onError: (err) => {
                     // Update the toast on error
-                    const status = (err as any)?.response?.status;
+                    const status = (err as AxiosError)?.response?.status;
                     if (status === 401) {
                       toast.error("Please sign in or sign up to upload a PDF.", { id: toastId });
                       router.push('/sign-in');
@@ -69,7 +68,7 @@ const FileUpload = () => {
               console.log("Failed to Upload File")
             }
             finally{
-              setLoading(false)
+              console.log("Uploaded File")
             }
 
         }

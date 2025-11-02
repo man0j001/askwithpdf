@@ -36,7 +36,7 @@ export const streamS3upload = async (file: File) => {
       },
     });
 
-    const data = await parallelUploads3.done();
+    await parallelUploads3.done();
     console.log('Successfully uploaded to S3!', filePath);
 
     return {

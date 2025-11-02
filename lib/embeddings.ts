@@ -1,4 +1,3 @@
-import { config } from 'dotenv';
 import { GoogleGenAI } from "@google/genai";
 
 // Initialize Google Gemini AI client

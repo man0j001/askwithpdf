@@ -3,8 +3,8 @@ import { cn } from "@/lib/utils";
 
 type Props = {
     pdfName: string,
-    currentChatId:Number,
-    chatId:Number
+    currentChatId:number,
+    chatId:number
 }
 function FileTabButton({pdfName, chatId, currentChatId}:Props) {
   return (

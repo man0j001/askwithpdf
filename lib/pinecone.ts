@@ -15,7 +15,7 @@ export async function initializationPincone(){
   try {
     const pc = new Pinecone({ apiKey: process.env.PINEONE_API_KEY as string });
     const indexName = "askwithpdf" ;
-    const index  = await pc.createIndex({
+    await pc.createIndex({
       name: indexName,
       dimension: 768, // Replace with your model dimensions
       metric: 'cosine', // Replace with your model metric
@@ -77,7 +77,8 @@ export const truncateStringByBytes = (str: string, bytes: number) => {
 };
 // spliting the pdf into document using Text Splitter
 async function splitPages(page:PDFPage){
-  let { pageContent, metadata } = page;
+  let pageContent = page.pageContent;
+  const { metadata } = page;
   pageContent = pageContent.replace(/\n/g, "");
   const textSplitter = new RecursiveCharacterTextSplitter({
     chunkSize: 500,

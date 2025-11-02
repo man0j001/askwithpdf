@@ -2,13 +2,13 @@ import { loadS3IntoPinecone } from '@/lib/pinecone';
 import { NextResponse } from 'next/server';
 import { getS3Url, streamS3upload } from '@/lib/s3Services';
 import { db } from '@/lib/db';
-import { chatTable, messages } from '@/lib/db/schema';
+import { chatTable } from '@/lib/db/schema';
 import { auth } from '@clerk/nextjs/server';
 
 
 
 
-export async function POST(req: Request, res: Response) {
+export async function POST(req: Request) {
     const { userId }: { userId: string | null } = auth()
 
     if (!userId) return NextResponse.json({error:" Unauthorised "}, { status: 401 })
