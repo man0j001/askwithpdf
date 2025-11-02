@@ -8,6 +8,15 @@ import { GoogleGenAI } from '@google/genai';
 
 config({ path: '.env' });
 
+/**
+ * POST /api/chat
+ *
+ * Orchestrates a retrieval-augmented response:
+ * - Validates chat and saves the user message
+ * - Retrieves PDF-grounded context via Pinecone
+ * - Calls Google GenAI for an answer
+ * - Stores assistant reply and returns citations for UI buttons
+ */
 export async function POST(req: Request) {
     try {
         const { messages,chatID} = await req.json();

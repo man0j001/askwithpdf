@@ -21,6 +21,10 @@ type Props = {
   isLoading?: boolean
 }
 
+/**
+ * Renders a chat transcript with optional citation buttons beneath assistant messages.
+ * When a citation is clicked, the parent provides behavior via onCitationClick.
+ */
 export const MessageComponent = ({ messages, onCitationClick, isLoading }: Props) => {
   if (!messages) return <></>
   return (

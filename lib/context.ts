@@ -3,9 +3,21 @@ import { config } from 'dotenv';
 import { convertToAscii } from "./utils";
 import { getEmbeddings } from "./embeddings";
 
+/**
+ * Utilities for building contextual prompts from Pinecone vector matches.
+ *
+ * Flow:
+ * 1) getEmbeddings(query) → query vector
+ * 2) getMatchEmbedding(vector, fileKey) → top-K matches from Pinecone
+ * 3) getContext(query, fileKey) → structured context text + per-chunk metadata (pageNumber, score)
+ */
+
 config({ path: '.env' });
 
 // getMatchEmbedding function is used to find query emebeddings in existing pinecone and return top 5 results
+/**
+ * Query Pinecone for top-K matches in the namespace for a given file.
+ */
 export async function getMatchEmbedding(embeddings: number[], fileKey: string) {
     try {
         //initialize Pinecone
@@ -30,6 +42,9 @@ export async function getMatchEmbedding(embeddings: number[], fileKey: string) {
 }
 
 
+/**
+ * A single contextual source paragraph/snippet used to ground the model.
+ */
 export type ContextSource = {
     id: string;
     text: string;
@@ -37,6 +52,9 @@ export type ContextSource = {
     score: number;
 };
 
+/**
+ * Result structure returned by getContext: plain text for the prompt and structured sources for citations.
+ */
 export type ContextResult = {
     contextText: string;
     sources: ContextSource[];
@@ -44,6 +62,10 @@ export type ContextResult = {
 
 //getContext function is use to get embedding from together.ai and get top 5 matching result from pinecone
 //then filter out those matches which has score greater then 0.7 and return structured context with metadata
+/**
+ * Build prompt context by embedding the query, retrieving similar chunks from Pinecone,
+ * and returning both a human-readable context block and structured source metadata.
+ */
 export async function getContext(query:string,fileKey:string): Promise<ContextResult> {
     const queryEmbeddings = await getEmbeddings(query);
     const matches = await getMatchEmbedding(queryEmbeddings,fileKey);

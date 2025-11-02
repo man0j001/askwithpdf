@@ -1,36 +1,93 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AskwithPdf
 
-## Getting Started
+Chat with PDFs. Upload a PDF, index it in Pinecone, and get grounded answers with page-level citations in a modern Next.js UI.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- PDF upload to S3 and automatic indexing in Pinecone
+- Chat grounded in retrieved context (RAG)
+- Citations with page buttons that scroll/highlight in the viewer
+- Desktop resizable split view (PDF | Chat)
+- Mobile-friendly UI
+
+## Tech Stack
+
+- Next.js 14 (App Router), React 18, TypeScript, Tailwind
+- Pinecone (vector store), Google GenAI (text + embeddings)
+- AWS S3 for file storage
+- Clerk for authentication
+
+## Prerequisites
+
+- Node.js 18+
+- AWS S3 bucket
+- Pinecone account and index named `askwithpdf`
+- Google API key for Generative AI (embeddings + chat)
+- Clerk project (for auth)
+
+## Environment Variables
+
+Create `.env.local` in the project root and set (names must match code):
+
+```
+NEXT_PUBLIC_AWS_S3_BUCKET_NAME=your-bucket
+NEXT_PUBLIC_AMAZON_REGION=us-east-1
+NEXT_PUBLIC_AWS_ACCESS_KEY_ID=...
+NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY=...
+
+GOOGLE_EMBEDDING_API_KEY=...
+
+# Note: variable name used in code is PINEONE_API_KEY (intentional)
+PINEONE_API_KEY=...
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Tip: To run dev on a specific port without script changes:
+- PowerShell: `$env:PORT=4000; npm run dev`
+- bash/zsh: `PORT=4000 npm run dev`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Installation
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+npm install
+```
 
-## Learn More
+## Development
 
-To learn more about Next.js, take a look at the following resources:
+```
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Open `http://localhost:3000` (or your PORT).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Build and Run
 
-## Deploy on Vercel
+```
+npm run build
+npm run start
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## How It Works (High Level)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Upload a PDF via `components/FileUpload.tsx` → `/api/create-chat` uploads to S3 and indexes chunks in Pinecone.
+2. Chat via `components/ChatComponent.tsx` → `/api/chat` embeds the query, retrieves context from Pinecone, and calls Google GenAI.
+3. The response includes citations; `components/MessageComponent.tsx` renders buttons that navigate the PDF (`components/ui/PdfViewer.tsx`).
+
+## Key Modules
+
+- `lib/pinecone.ts`: PDF parsing, chunking, embeddings, upsert to Pinecone
+- `lib/context.ts`: Query-to-context pipeline with structured sources for citations
+- `app/api/create-chat/route.ts`: Upload flow and ingestion
+- `app/api/chat/route.ts`: RAG orchestration and answer generation
+- `components/ui/PdfViewer.tsx`: PDF rendering with page navigation and highlight
+- `components/ChatComponent.tsx`: Chat UX and API integration
+
+## Deployment (Vercel)
+
+1. Add environment variables in Vercel Project Settings
+2. Push to main; Vercel will build and deploy
+
+## Troubleshooting
+
+- Pinecone API key: ensure `PINEONE_API_KEY` matches your environment
+- S3 permissions: verify IAM credentials allow `s3:PutObject` and `s3:GetObject`
+- PDF worker: viewer uses the pdf.js CDN worker; confirm network access

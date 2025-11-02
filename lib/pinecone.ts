@@ -8,9 +8,15 @@ import { getEmbeddings } from "./embeddings";
 import md5 from "md5";
 import { convertToAscii } from "./utils";
 
+/**
+ * Pipeline for parsing uploaded PDFs into chunks, embedding them, and upserting
+ * vectors into Pinecone, namespaced by file key.
+ */
+
 config({ path: '.env' });
 
 // Pinecone Initialization 
+/** Initialize a Pinecone index if needed (serverless config). */
 export async function initializationPincone(){
   try {
     const pc = new Pinecone({ apiKey: process.env.PINEONE_API_KEY as string });
@@ -41,6 +47,9 @@ type PDFPage = {
   };
 };
 
+/**
+ * Download a PDF from S3, split to chunks, embed, and upsert to Pinecone namespace for that file.
+ */
 export async function loadS3IntoPinecone(fileKey: string) {
 // downloading PDF from S3 bucket
   console.log("downloading s3 into file system");
@@ -76,6 +85,7 @@ export const truncateStringByBytes = (str: string, bytes: number) => {
   return new TextDecoder("utf-8").decode(enc.encode(str).slice(0, bytes));
 };
 // spliting the pdf into document using Text Splitter
+/** Split a single PDF page into overlapping text chunks suitable for embedding. */
 async function splitPages(page:PDFPage){
   let pageContent = page.pageContent;
   const { metadata } = page;
@@ -98,6 +108,7 @@ async function splitPages(page:PDFPage){
 }
 
 
+/** Embed a single chunk and convert to a Pinecone vector with metadata. */
 async function embedDocument(doc: Document){
   try {
     const embeddings = await getEmbeddings(doc.pageContent);
