@@ -3,13 +3,13 @@ import { cn } from "@/lib/utils";
 
 type Props = {
     pdfName: string,
-    currentChatId:number,
-    chatId:number
+    currentChatID:number,
+    chatID:number
 }
-function FileTabButton({pdfName, chatId, currentChatId}:Props) {
+function FileTabButton({pdfName, chatID, currentChatID}:Props) {
   return (
-    <div className={cn('p-1 my-2 h-10 flex',{"bg-white rounded-lg border-1 border-blue-200 drop-shadow":currentChatId === chatId, "opacity-100": currentChatId === chatId,
-                    "opacity-80": currentChatId !== chatId})}>
+    <div className={cn('p-1 my-2 h-10 flex',{"bg-white rounded-lg border-1 border-blue-200 drop-shadow":currentChatID === chatID, "opacity-100": currentChatID === chatID,
+                    "opacity-80": currentChatID !== chatID})}>
           <div className='mr-2 flex'>
             <img src="/assets/icons/pdfIcon.svg"/>
           </div>
