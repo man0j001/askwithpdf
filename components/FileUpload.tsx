@@ -10,11 +10,6 @@ import { useAuth } from '@clerk/nextjs'
 
 
 
-/**
- * Drag-and-drop uploader for PDFs.
- * - Requires authentication; unauthenticated users are redirected to sign-in.
- * - Uploads to S3, then triggers Pinecone ingestion via /api/create-chat.
- */
 const FileUpload = () => {
 
   const router = useRouter();

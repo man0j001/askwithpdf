@@ -37,12 +37,6 @@ type Props = {
   onNavigateToPage: (pageNumber: number) => void
 }
 
-/**
- * ChatComponent
- * - Fetches stored messages for a chat
- * - Sends user prompts to /api/chat and renders assistant answers
- * - Displays citation buttons; clicking navigates the PDF to a page
- */
 function ChatComponent({ chatID, onNavigateToPage }: Props) {
   const [input, setInput] = React.useState('')
   const [messages, setMessages] = React.useState<ChatMessage[]>([])

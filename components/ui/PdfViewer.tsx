@@ -6,19 +6,11 @@ import { cn } from "@/lib/utils";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
-/**
- * Navigation request for scrolling and highlighting a target PDF page.
- * Consumers can update this prop to programmatically navigate.
- */
 type NavigationRequest = {
   page: number;
   key: number;
 };
 
-/**
- * PDFViewer renders a scrollable document and accepts optional navigation
- * requests which will scroll to and briefly highlight a given page.
- */
 type Props = {
   pdf_url: string;
   navigationRequest?: NavigationRequest | null;

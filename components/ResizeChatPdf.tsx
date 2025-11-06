@@ -14,11 +14,6 @@ export const ResizeChatPdf = ({pdf_url,chatID}: Props) => {
     setNavigationRequest({ page, key: Date.now() })
   }
 
-  /**
-   * Layout:
-   * - Desktop: resizable split (PDF | Chat)
-   * - Mobile: handled by the parent route layout; this component focuses on split view
-   */
   return (
     <PanelGroup autoSaveId="example"  direction="horizontal" className="h-full">
     {/* pdf viewer */}
