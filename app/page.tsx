@@ -84,7 +84,7 @@ export default async function Home() {
 
       {/* Everywhere */}
       <section className="mx-auto max-w-6xl px-4 py-10">
-        <h2 className="text-2xl md:text-3xl font-bold text-center">Use ChatPDF Everywhere</h2>
+        <h2 className="text-2xl md:text-3xl font-bold text-center">Use ASKWithPDF Everywhere</h2>
         <p className="text-center text-gray-600 mt-2">Web, desktop, and mobile. Your PDFs stay in sync across devices.</p>
         <div className="mt-6 grid gap-4 sm:grid-cols-2 md:grid-cols-4">
           <div className="rounded-xl border p-4 bg-white text-center">Web</div>
