@@ -17,8 +17,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "AskwithPdf",
-  description: "Chat with PDF",
+  title: "AskWithPDF: The Best PDF AI Chat App",
+  description: "We built AskYourPDF as the only PDF AI Chat App you will ever need. Easily upload your PDF files and engage with our intelligent chat AI to extract valuable insights from your documents.",
 };
 
 export default function RootLayout({
