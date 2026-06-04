@@ -1,3 +1,4 @@
+import Image from "next/image";
 import FileUpload from "@/components/FileUpload";
 import { UserButton, SignedIn, SignedOut, SignInButton, SignUpButton } from "@clerk/nextjs";
 
@@ -8,7 +9,7 @@ export default async function Home() {
       <header className="w-full border-b bg-white">
         <div className="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="/assets/icons/pdfIcon.svg" alt="logo" className="h-6 w-6" />
+            <Image src="/assets/icons/pdfIcon.svg" alt="logo" width={24} height={24} className="h-6 w-6" unoptimized />
             <span className="font-semibold">AskwithPdf</span>
           </div>
           <div className="flex items-center gap-3">

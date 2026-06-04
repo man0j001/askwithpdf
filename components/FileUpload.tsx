@@ -6,6 +6,7 @@ import axios, { AxiosError } from "axios"
 import { useMutation } from '@tanstack/react-query'
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useAuth } from '@clerk/nextjs'
 
 
@@ -81,7 +82,7 @@ const FileUpload = () => {
         className="flex items-center justify-center"
       >
         <span className="bg-slate-300 p-1 mr-2 rounded-md">
-        <img className="w-5 text-gray-800" src='/assets/icons/upload.svg'/>
+        <Image className="w-5 text-gray-800" src='/assets/icons/upload.svg' alt="upload" width={20} height={20} unoptimized />
         </span>
         <span className="items-center text-sm font-medium flex">
           Drag & drop or &nbsp;<p className="text-blue-700"> browser files</p>

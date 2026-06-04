@@ -21,7 +21,7 @@ function SidebarMenu({chats,chatId}:Props) {
         <hr></hr>
         {chats.map((chat) => (
             <Link key={chat.id} href={`/chat/${chat.id}`}>
-                <FileTabButton pdfName={chat.pdfName} chatId={chatId} currentChatId={chat.id}  />
+                <FileTabButton pdfName={chat.pdfName} chatID={chatId} currentChatID={chat.id}  />
             </Link>
         ))} 
       </div>
