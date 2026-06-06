@@ -106,17 +106,17 @@ const PDFViewer = ({ pdf_url, navigationRequest }: Props) => {
   }, [containerWidth]);
 
   return (
-    <div ref={containerRef} className="h-full overflow-y-scroll bg-gray-50">
+    <div ref={containerRef} className="steep-scroll h-full overflow-y-scroll bg-fog px-2 py-4">
       {!pdf_url ? (
-        <div className="flex h-full items-center justify-center text-sm text-gray-500">
+        <div className="flex h-full items-center justify-center text-[14px] tracking-[-0.009em] text-graphite">
           No PDF selected.
         </div>
       ) : (
         <Document
           file={{ url: pdf_url }}
           onLoadSuccess={handleDocumentLoadSuccess}
-          loading={<div className="p-4 text-sm text-gray-500">Loading PDF…</div>}
-          error={<div className="p-4 text-sm text-red-500">Failed to load PDF.</div>}
+          loading={<div className="p-4 text-[14px] tracking-[-0.009em] text-graphite">Loading PDF…</div>}
+          error={<div className="p-4 text-[14px] tracking-[-0.009em] text-rust">Failed to load PDF.</div>}
         >
           {Array.from({ length: numPages }, (_, index) => {
             const pageNumber = index + 1;
@@ -131,9 +131,10 @@ const PDFViewer = ({ pdf_url, navigationRequest }: Props) => {
                   }
                 }}
                 className={cn(
-                  "mb-6 flex justify-center transition-shadow duration-500",
+                  "mb-6 flex justify-center transition-all duration-500 [&_.react-pdf__Page]:overflow-hidden [&_.react-pdf__Page]:rounded-xl [&_.react-pdf__Page]:shadow-steep-soft",
                   {
-                    "rounded-md ring-2 ring-blue-400": highlightedPage === pageNumber,
+                    "[&_.react-pdf__Page]:ring-2 [&_.react-pdf__Page]:ring-rust/50 [&_.react-pdf__Page]:ring-offset-4 [&_.react-pdf__Page]:ring-offset-fog":
+                      highlightedPage === pageNumber,
                   },
                 )}
               >

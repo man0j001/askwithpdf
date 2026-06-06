@@ -5,6 +5,7 @@ import { Button } from './ui/button'
 import { MessageComponent } from './MessageComponent'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
+import { ArrowUp, Loader2, MessageSquareText, Sparkles } from 'lucide-react'
 
 type Citation = {
   pageNumber: number
@@ -36,6 +37,12 @@ type Props = {
   chatID: number
   onNavigateToPage: (pageNumber: number) => void
 }
+
+const SUGGESTIONS = [
+  'Summarize this document',
+  'What are the key points?',
+  'List the main conclusions',
+]
 
 function ChatComponent({ chatID, onNavigateToPage }: Props) {
   const [input, setInput] = React.useState('')
@@ -131,29 +138,70 @@ function ChatComponent({ chatID, onNavigateToPage }: Props) {
   }, [messages])
 
   return (
-    <section className="flex h-full flex-col overflow-hidden">
+    <section className="flex h-full flex-col overflow-hidden bg-fog">
       {/* header */}
-      <div className="p-2 bg-white h-fit">
-        <h3 className="text-xl font-bold">Chat</h3>
-      </div>
+      <header className="flex items-center gap-2.5 border-b border-dove/50 bg-pure-white/80 px-4 py-3 backdrop-blur">
+        <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-apricot-wash text-rust">
+          <Sparkles className="h-4 w-4" strokeWidth={1.75} />
+        </span>
+        <div className="leading-tight">
+          <h3 className="text-[15px] font-medium tracking-[-0.009em] text-ink">Chat</h3>
+          <p className="text-[12px] tracking-[-0.009em] text-graphite">Ask anything about your PDF</p>
+        </div>
+      </header>
 
       {/* Message Box */}
-      <div id="message-container" className="flex-1 overflow-y-auto px-2">
-        <MessageComponent messages={messages} onCitationClick={onNavigateToPage} isLoading={isLoading} />
+      <div id="message-container" className="steep-scroll flex-1 overflow-y-auto px-4">
+        {messages.length === 0 && !isLoading ? (
+          <div className="flex h-full flex-col items-center justify-center px-4 text-center">
+            <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-pure-white text-rust shadow-steep-soft">
+              <MessageSquareText className="h-5 w-5" strokeWidth={1.5} />
+            </span>
+            <h4 className="text-[18px] font-medium tracking-[-0.009em] text-ink">Start the conversation</h4>
+            <p className="mt-1.5 max-w-xs text-[14px] leading-relaxed text-ash">
+              Ask a question and get answers grounded in your document, with page citations you can jump to.
+            </p>
+            <div className="mt-5 flex flex-wrap justify-center gap-2">
+              {SUGGESTIONS.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setInput(s)}
+                  className="cursor-pointer rounded-full border border-dove bg-pure-white px-3 py-1.5 text-[13px] text-ash transition-colors hover:border-rust/30 hover:bg-apricot-wash hover:text-rust"
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <MessageComponent messages={messages} onCitationClick={onNavigateToPage} isLoading={isLoading} />
+        )}
       </div>
 
       {/* Message Input Box */}
-      <form onSubmit={handleSubmit} className="mt-1 px-2 py-4 bg-white border-t">
-        <div className="flex">
+      <form onSubmit={handleSubmit} className="bg-fog px-4 pb-4 pt-2">
+        <div className="flex items-center gap-2 rounded-2xl border border-dove bg-pure-white py-1.5 pl-3 pr-1.5 shadow-steep-soft transition-colors focus-within:border-graphite">
           <Input
             value={input}
             onChange={handleInputChange}
             placeholder="Ask any question..."
-            className="w-full"
+            className="h-9 w-full border-0 bg-transparent px-0 text-[15px] tracking-[-0.009em] text-ink shadow-none placeholder:text-graphite focus-visible:ring-0 focus-visible:ring-offset-0"
             disabled={isLoading}
           />
-          <Button className="bg-blue-600 ml-2" disabled={isLoading}>
-            {isLoading ? 'Sending...' : 'Send'}
+          <Button
+            type="submit"
+            variant="ink"
+            size="icon"
+            className="h-9 w-9 shrink-0 rounded-full"
+            disabled={isLoading}
+            aria-label="Send message"
+          >
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <ArrowUp className="h-4 w-4" strokeWidth={2.25} />
+            )}
           </Button>
         </div>
       </form>

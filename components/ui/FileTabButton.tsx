@@ -1,5 +1,5 @@
 "use client";
-import Image from "next/image";
+import { FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -8,13 +8,35 @@ type Props = {
     chatID:number
 }
 function FileTabButton({pdfName, chatID, currentChatID}:Props) {
+  const isActive = currentChatID === chatID;
   return (
-    <div className={cn('p-1 my-2 h-10 flex',{"bg-white rounded-lg border-1 border-blue-200 drop-shadow":currentChatID === chatID, "opacity-100": currentChatID === chatID,
-                    "opacity-80": currentChatID !== chatID})}>
-          <div className='mr-2 flex'>
-            <Image src="/assets/icons/pdfIcon.svg" alt="PDF file" width={27} height={32} unoptimized />
-          </div>
-            <span className=' font-medium pt-1 w-full overflow-hidden text-sm truncate whitespace-nowrap text-ellipsis'>{pdfName}</span>
+    <div
+      className={cn(
+        "group my-1 flex h-11 cursor-pointer items-center gap-2.5 rounded-xl px-2.5 transition-colors",
+        isActive
+          ? "bg-pure-white shadow-steep-soft"
+          : "bg-transparent hover:bg-pure-white/60",
+      )}
+    >
+      <span
+        className={cn(
+          "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors",
+          isActive
+            ? "bg-apricot-wash text-rust"
+            : "bg-pure-white/70 text-graphite group-hover:text-ink",
+        )}
+      >
+        <FileText className="h-4 w-4" strokeWidth={1.75} />
+      </span>
+      <span
+        title={pdfName}
+        className={cn(
+          "w-full truncate whitespace-nowrap text-[14px] tracking-[-0.009em]",
+          isActive ? "font-medium text-ink" : "text-ash",
+        )}
+      >
+        {pdfName}
+      </span>
     </div>
   )
 }

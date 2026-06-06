@@ -15,15 +15,17 @@ export const ResizeChatPdf = ({pdf_url,chatID}: Props) => {
   }
 
   return (
-    <PanelGroup autoSaveId="example"  direction="horizontal" className="h-full">
+    <PanelGroup autoSaveId="example"  direction="horizontal" className="h-full bg-fog">
     {/* pdf viewer */}
-    <Panel defaultSize={40} className="ml-4">
+    <Panel defaultSize={40} className="ml-2">
     <div className="h-full w-full">
     <PDFViewer pdf_url= {pdf_url} navigationRequest={navigationRequest} />
   </div>
   </Panel>
   {/* chat component */}
-  <PanelResizeHandle className="w-4 h-full !cursor-col-resize " />
+  <PanelResizeHandle className="group relative flex w-3 items-center justify-center !cursor-col-resize">
+    <span className="h-10 w-1 rounded-full bg-dove/60 transition-colors group-hover:bg-rust/50" />
+  </PanelResizeHandle>
   <Panel defaultSize={40}>
   <div className="h-full">
     <ChatComponent chatID = {chatID} onNavigateToPage={handleNavigateToPage}/>

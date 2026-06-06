@@ -6,8 +6,9 @@ import axios, { AxiosError } from "axios"
 import { useMutation } from '@tanstack/react-query'
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { Upload } from "lucide-react";
 import { useAuth } from '@clerk/nextjs'
+import { cn } from '@/lib/utils'
 
 
 
@@ -27,7 +28,7 @@ const FileUpload = () => {
     },
   })
 
-    const {getRootProps, getInputProps} = useDropzone({
+    const {getRootProps, getInputProps, isDragActive} = useDropzone({
         accept:{'application/pdf':['.pdf']},
         maxFiles:1,
         onDrop: async (acceptedFiles)=>{
@@ -39,7 +40,7 @@ const FileUpload = () => {
             const file = acceptedFiles[0]
             if (file.size > 10* 1024 * 1024){
                 toast.error('Please Upload Smallar File')
-                return 
+                return
             }
             try {
                 const formData = new FormData();
@@ -64,7 +65,7 @@ const FileUpload = () => {
                     console.log(err);
                   }
                 });
-                
+
             } catch (error) {
               console.log("Failed to Upload File")
             }
@@ -75,26 +76,31 @@ const FileUpload = () => {
         }
     })
   return (
-    <>
-    <div {...getRootProps()} className='bg-white p-1.5 h-12 flex items-center justify-center rounded-xl border-dashed border-2 border-blue-200 cursor-pointer text-center'>
-    <input {...getInputProps()} />
-    <label
-        className="flex items-center justify-center"
-      >
-        <span className="bg-slate-300 p-1 mr-2 rounded-md">
-        <Image className="w-5 text-gray-800" src='/assets/icons/upload.svg' alt="upload" width={20} height={20} unoptimized />
+    <div
+      {...getRootProps()}
+      className={cn(
+        "group flex h-12 cursor-pointer items-center justify-center gap-2.5 rounded-2xl border-2 border-dashed px-3 text-center transition-colors",
+        isDragActive
+          ? "border-rust/50 bg-apricot-wash/60"
+          : "border-dove bg-pure-white hover:border-rust/40 hover:bg-apricot-wash/40",
+      )}
+    >
+      <input {...getInputProps()} />
+      <label className="flex cursor-pointer items-center justify-center gap-2.5">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-fog text-graphite transition-colors group-hover:bg-apricot-wash group-hover:text-rust">
+          <Upload className="h-4 w-4" strokeWidth={1.75} />
         </span>
-        <span className="items-center text-sm font-medium flex">
-          Drag & drop or &nbsp;<p className="text-blue-700"> browser files</p>
+        <span className="flex items-center text-[14px] font-medium tracking-[-0.009em] text-ash">
+          {isDragActive ? (
+            <span className="text-rust">Drop your PDF here</span>
+          ) : (
+            <>
+              Drag &amp; drop or&nbsp;<span className="text-rust">browse files</span>
+            </>
+          )}
         </span>
       </label>
-    {/* {
-      isDragActive ?
-        <p>Drop the files here ...</p> :
-        <p>Drag 'n' drop some files here, or click to select files</p>
-    } */}
-  </div>
-  </>
+    </div>
   )
 }
 

@@ -30,7 +30,7 @@ export default function RootLayout({
     <ClerkProvider>
       <Provider>
      <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} font-sohne bg-pure-white text-ink antialiased`}>
         {/* <div className="main">
           <div className="gradient"/>
         </div> */}
